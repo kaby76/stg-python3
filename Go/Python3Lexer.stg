@@ -1,0 +1,144 @@
+header() ::= <<
+import (
+	"regexp"
+)
+>>
+
+members() ::= <<
+var	tokens    []antlr.Token
+var	indents   []int
+var	Opened    int
+var	lastToken antlr.Token
+
+func (l *Python3Lexer) Emit() antlr.Token {
+	t := l.BaseLexer.Emit()
+	return t
+}
+
+func (l *Python3Lexer) EmitToken(t antlr.Token) {
+	l.BaseLexer.EmitToken(t)
+	tokens = append(tokens, t)
+}
+
+func (l *Python3Lexer) MakeCommonToken(ttype int, text string) antlr.Token {
+	stop := l.TokenStartCharIndex - 1
+	start := stop
+	if len(text) != 0 {
+		start = stop - len(text) + 1
+	}
+	ctf := l.GetTokenFactory()
+	t := ctf.Create(
+		l.GetTokenSourceCharStreamPair(),
+		ttype,
+		text,
+		antlr.TokenDefaultChannel,
+		start,
+		l.TokenStartCharIndex-1,
+		l.TokenStartLine,
+		l.TokenStartColumn)
+	return t
+}
+
+func (l *Python3Lexer) CreateDedent() antlr.Token {
+	dedent := l.MakeCommonToken(Python3ParserDEDENT, "")
+	//dedent.Line = LastToken.GetLine()
+	return dedent
+}
+
+func (l *Python3Lexer) NextToken() antlr.Token {
+	if l.GetInputStream().LA(1) == antlr.TokenEOF && len(indents) != 0 {
+		var filtered []antlr.Token
+		for _, value := range tokens {
+			if value.GetTokenType() != antlr.TokenEOF {
+				filtered = append(filtered, value)
+			}
+		}
+		tokens = filtered
+		l.EmitToken(l.MakeCommonToken(Python3ParserNEWLINE, "\n"))
+		for len(indents) != 0 {
+			l.EmitToken(l.CreateDedent())
+			indents = indents[:len(indents)-1]
+		}
+		l.EmitToken(l.MakeCommonToken(antlr.TokenEOF, "\<EOF>"))
+	}
+
+	next := l.BaseLexer.NextToken()
+	if next.GetChannel() == antlr.TokenDefaultChannel {
+		lastToken = next
+	}
+	if len(tokens) == 0 {
+		return next
+	} else {
+		x := tokens[0]
+		tokens = tokens[1:]
+		return x
+	}
+}
+
+func (l *Python3Lexer) GetIndentationCount(spaces string) int {
+	count := 0
+	for _, ch := range spaces {
+		if ch == '\t' {
+			count += 8 - (count % 8)
+		} else {
+			count += 1
+		}
+	}
+	return count
+}
+
+func (l *Python3Lexer) Reset() {
+	tokens = make([]antlr.Token, 0)
+	indents = make([]int, 0)
+	Opened = 0
+	//l.lastToken = null
+	l.BaseLexer.Reset()
+}
+>>
+
+atStartOfInput() ::= <<
+	p.TokenStartColumn == 0 && p.TokenStartLine == 1
+>>
+
+openBrace() ::= <<
+	Opened++
+>>
+
+closeBrace() ::= <<
+	Opened--
+>>
+
+onNewLine() ::= <<
+{
+	newLineRegex := regexp.MustCompile(`[^\r\n\f]+`)
+	newLine := newLineRegex.ReplaceAllString(l.GetText(), "")
+	spacesRegex := regexp.MustCompile(`[\r\n\f]+`)
+	spaces := spacesRegex.ReplaceAllString(l.GetText(), "")
+	next := l.GetInputStream().LA(1)
+	nextnext := l.GetInputStream().LA(2)
+	if Opened > 0 || (nextnext != -1 && (next == '\r' || next == '\n' || next == '\f' || next == '#')) {
+		l.Skip()
+	} else {
+		l.EmitToken(l.MakeCommonToken(Python3LexerNEWLINE, newLine))
+		indent := l.GetIndentationCount(spaces)
+		previous := 0
+		if len(indents) == 0 {
+			previous = 0
+		} else {
+			previous = indents[len(indents)-1]
+		}
+		if indent == previous {
+			l.Skip()
+		} else if indent > previous {
+			indents = append(indents, indent)
+			l.EmitToken(l.MakeCommonToken(Python3ParserINDENT, spaces))
+		} else {
+			for len(indents) != 0 && indents[len(indents)-1] > indent {
+				l.EmitToken(l.CreateDedent())
+				indents = indents[:len(indents)-1]
+			}
+		}
+	}
+}
+>>
+

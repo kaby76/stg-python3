@@ -1,0 +1,11 @@
+header() ::= <<
+	import org.antlr.v4.runtime.*;
+>>
+
+CannotBePlusMinus() ::= <<
+	true
+>>
+
+CannotBeDotLpEq() ::= <<
+	true
+>>
