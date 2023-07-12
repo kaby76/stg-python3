@@ -42,11 +42,11 @@ options {
 // Insert here @header for C++ lexer.
 
 @header {
-    <header()>
+<header()>
 }
 
 @members {
-    <members()>
+<members()>
 }
 
 

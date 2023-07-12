@@ -1,9 +1,10 @@
-from antlr4 import *
+header() ::= <<>>
+members() ::= <<>>
 
-class Python3ParserBase(Parser):
+CannotBePlusMinus() ::= <<
+        True
+>>
 
-    def CannotBePlusMinus(self) -> bool:
-        return True
-
-    def CannotBeDotLpEq(self) -> bool:
-        return True
+CannotBeDotLpEq() ::= <<
+        True
+>>
