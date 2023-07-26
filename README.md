@@ -1,4 +1,8 @@
-# Python 3 parser
+# Python 3 parser using TemplateString actions
+
+This is the [Antlr4 Python3 grammar](https://github.com/antlr/grammars-v4/tree/master/python/python3)
+in a proposed syntax that uses TemplateString actions.
+https://github.com/antlr/antlr4/pull/4345
 
 An ANTLR4 grammar for Python 3 based on version 3.6 of 
 [The Python Language Reference](https://docs.python.org/3/reference/grammar.html).
