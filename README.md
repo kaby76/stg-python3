@@ -14,3 +14,16 @@ the insertion of `INDENT` and `DEDENT` tokens. The embedded code,
 located inside the `NEWLINE` lexer rule as well as the `@lexer::members`
 section is well documented, so people trying to port this grammar to
 another target should not have much difficulty.
+
+### Targets working
+
+|---|---|
+| Cpp | Yes |
+| CSharp | Yes |
+| Dart | _not yet_ |
+| Go | Yes |
+| Java | Yes |
+| JavaScript | Yes |
+| Python3 | Yes |
+| TypeScript | _not yet_ |
+|---|---|
