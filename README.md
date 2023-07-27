@@ -12,7 +12,7 @@ for a common syntax across targets.
 |---|---|
 | Cpp | Yes |
 | CSharp | Yes |
-| Dart | _not yet_ |
+| Dart | Yes |
 | Go | Yes |
 | Java | Yes |
 | JavaScript | Yes |
