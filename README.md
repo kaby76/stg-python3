@@ -18,4 +18,3 @@ for a common syntax across targets.
 | JavaScript | Yes |
 | Python3 | Yes |
 | TypeScript | _not yet_ |
-|---|---|
