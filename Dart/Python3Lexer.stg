@@ -1,3 +1,4 @@
+header() ::= <<
 import 'package:antlr4/antlr4.dart';
 import 'dart:io';
 import 'dart:core';
@@ -5,15 +6,13 @@ import 'dart:convert';
 import 'dart:collection';
 import 'Python3Lexer.dart';
 import 'Python3Parser.dart';
+>>
 
-abstract class Python3LexerBase extends Lexer
-{
-    Python3LexerBase(CharStream input) : super(input)
-    {
-    }
 
-    List<Token> Tokens = [];
-    List<int> Indents = [];
+members() ::= <<
+
+    List\<Token> Tokens = [];
+    List\<int> Indents = [];
     int Opened = 0;
     Token? LastToken = null;
 
@@ -26,7 +25,7 @@ abstract class Python3LexerBase extends Lexer
         final t = ctf.create(
             type,
             text,
-            Pair<TokenSource?, CharStream?>(this, this.inputStream),
+            Pair\<TokenSource?, CharStream?>(this, this.inputStream),
             channel,
             start,
             charIndex - 1,
@@ -76,7 +75,7 @@ abstract class Python3LexerBase extends Lexer
             }
 
             // Put the EOF back on the token stream.
-            this.emitToken(MakeCommonToken(IntStream.EOF, "<EOF>"));
+            this.emitToken(MakeCommonToken(IntStream.EOF, "\<EOF>"));
         }
 
         Token next = super.nextToken();
@@ -101,26 +100,35 @@ abstract class Python3LexerBase extends Lexer
     int getIndentationCount(String spaces)
     {
         int count = 0;
-        for (int i = 0; i < spaces.length; i++) {
+        for (int i = 0; i \< spaces.length; i++) {
             count += spaces[i] == '\t'.codeUnitAt(0) ? 8 - (count % 8) : 1;
         }
         return count;
     }
 
-    bool atStartOfInput()
+    @override void reset([bool resetInput = false])
     {
-        return this.charPositionInLine == 0 && this.line == 1;
+        Tokens = List\<Token>.empty(growable: true);
+        Indents = [];
+        Opened = 0;
+        LastToken = null;
+        super.reset(resetInput);
     }
+>>
 
-    void openBrace(){
-        Opened++;
-    }
+atStartOfInput() ::= <<
+    this.charPositionInLine == 0 && this.line == 1
+>>
 
-    void closeBrace(){
-        Opened--;
-    }
+openBrace() ::= <<
+    Opened++;
+>>
 
-    void onNewLine(){
+closeBrace() ::= <<
+    Opened--;
+>>
+
+onNewLine() ::= <<
         var newLine = this.text.replaceAll(RegExp("[^\r\n\f]+"), "");
         var spaces = this.text.replaceAll(RegExp("[\r\n\f]+"), "");
 
@@ -157,14 +165,5 @@ abstract class Python3LexerBase extends Lexer
                 }
             }
         }
-    }
+>>
 
-    @override void reset([bool resetInput = false])
-    {
-        Tokens = List<Token>.empty(growable: true);
-        Indents = [];
-        Opened = 0;
-        LastToken = null;
-        super.reset(resetInput);
-    }
-}
