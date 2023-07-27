@@ -17,4 +17,4 @@ for a common syntax across targets.
 | Java | Yes |
 | JavaScript | Yes |
 | Python3 | Yes |
-| TypeScript | _not yet_ |
+| TypeScript | Yes |
